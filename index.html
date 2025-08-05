@@ -25,48 +25,56 @@
 
   <script>
     function glitchText(text, level) {
-      const rep = {
-        a: ['4', '@'], e: ['3'], i: ['1', '!'], o: ['0'],
-        s: ['5', '$'], t: ['1', '7'], c: ['¢'], l: ['|'], b: ['8'], g: ['9']
-      };
-      const symbols = ['#','~','*','¥','¬','%','&','=','+','[',']','\\','^','ø'];
-      level = Math.max(1, Math.min(8, level));
+  const rep = {
+    a: ['4', '@'], e: ['3'], i: ['1', '!'], o: ['0'],
+    s: ['5', '$'], t: ['1', '7'], c: ['¢'], l: ['|'], b: ['8'], g: ['9']
+  };
+  const symbols = ['#','~','*','¥','¬','%','&','=','+','[',']','\\','^','ø'];
+  level = Math.max(1, Math.min(8, level));
 
-      const subChance = 0.04 + level * 0.03;
-      const capChance = 0.05 + level * 0.04;
-      const symChance = (level >= 7) ? (level - 6) * 0.05 : 0;
+  const subChance = 0.04 + level * 0.03;
+  const capChance = 0.05 + level * 0.04;
+  const symChance = (level >= 7) ? (level - 6) * 0.05 : 0;
 
-      const filterWords = [
-        "fuck", "shit", "bitch", "cunt", "asshole", "damn", "fag", "faggot",
-        "nigger", "nigga", "slut", "dick", "cock", "piss", "whore", "bastard"
-      ];
+  const filterWords = [
+    "fuck", "shit", "bitch", "cunt", "asshole", "damn", "fag", "faggot",
+    "nigger", "nigga", "slut", "dick", "cock", "piss", "whore", "bastard"
+  ];
 
-      const censorWord = (word) => {
-        if (word.length < 3) return word;
-        const middle = Array(word.length - 2).fill(0).map(() =>
-          symbols[Math.floor(Math.random() * symbols.length)]
-        ).join('');
-        return word[0] + middle + word[word.length - 1];
-      };
+  const censorWord = (word) => {
+    if (word.length < 3) return word;
+    const middle = Array(word.length - 2).fill(0).map(() =>
+      symbols[Math.floor(Math.random() * symbols.length)]
+    ).join('');
+    return word[0] + middle + word[word.length - 1];
+  };
 
-      return text.split(/\b/).map(token => {
-        if (filterWords.includes(token.toLowerCase())) return censorWord(token);
+  return text.split(/\b/).map(token => {
+    if (filterWords.includes(token.toLowerCase())) return censorWord(token);
 
-        let out = '';
-        for (let ch of token) {
-          if (Math.random() < symChance) out += symbols[Math.floor(Math.random() * symbols.length)];
-          let lc = ch.toLowerCase();
-          if (rep[lc] && Math.random() < subChance) {
-            out += rep[lc][Math.floor(Math.random() * rep[lc].length)];
-          } else if (/[a-z]/i.test(ch) && Math.random() < capChance) {
-            out += ch.toUpperCase();
-          } else {
-            out += ch;
-          }
+    let out = '';
+    for (let ch of token) {
+      if (ch === ' ') {
+        out += ch; // preserve original spaces only
+        continue;
+      }
+
+      if (Math.random() < symChance) {
+        out += symbols[Math.floor(Math.random() * symbols.length)];
+      } else {
+        const lc = ch.toLowerCase();
+        if (rep[lc] && Math.random() < subChance) {
+          out += rep[lc][Math.floor(Math.random() * rep[lc].length)];
+        } else if (/[a-z]/i.test(ch) && Math.random() < capChance) {
+          out += ch.toUpperCase();
+        } else {
+          out += ch;
         }
-        return out;
-      }).join('');
+      }
     }
+    return out;
+  }).join('');
+}
 
     document.getElementById('go').onclick = () => {
       const inp = document.getElementById('input').value;
